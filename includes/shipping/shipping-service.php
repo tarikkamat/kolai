@@ -41,7 +41,7 @@ class Kolai_Shipping_Service {
             throw new Kolai_Invalid_Product_List_Exception('Products list is required');
         }
 
-        $destination = $this->build_destination($address);
+        $destination = Kolai_Address::normalize_destination($address);
         $package = $this->build_package($product_ids, $destination);
 
         $this->prime_customer_context($destination);
@@ -79,34 +79,6 @@ class Kolai_Shipping_Service {
      * @param array $address
      * @return array
      */
-    private function build_destination($address) {
-        if (!is_array($address)) {
-            throw new Kolai_Invalid_Address_Exception('Address is required');
-        }
-
-        if (empty($address['countryId']) || empty($address['cityId']) || empty($address['districtId'])) {
-            throw new Kolai_Invalid_Address_Exception('countryId, cityId and districtId are required');
-        }
-
-        $country = sanitize_text_field($address['countryId']);
-        $state = sanitize_text_field($address['cityId']);
-        $city = sanitize_text_field($address['districtId']);
-
-        // WooCommerce TR state codes are usually like TR34. Normalize if numeric.
-        if ($country === 'TR' && preg_match('/^\d+$/', $state)) {
-            $state = 'TR' . $state;
-        }
-
-        return array(
-            'country' => $country,
-            'state' => $state,
-            'city' => $city,
-            'postcode' => isset($address['postcode']) ? sanitize_text_field($address['postcode']) : '',
-            'address_1' => isset($address['addressLine']) ? sanitize_text_field($address['addressLine']) : '',
-            'address_2' => '',
-        );
-    }
-
     /**
      * Build a shipping package for calculation.
      *
@@ -220,5 +192,26 @@ class Kolai_Shipping_Service {
         }
 
         return $rates;
+    }
+
+    /**
+     * Get a specific rate by id for given products and address.
+     *
+     * @param array  $product_ids
+     * @param array  $address
+     * @param string $rate_id
+     * @return WC_Shipping_Rate
+     */
+    public function get_rate_by_id($product_ids, $address, $rate_id) {
+        $destination = Kolai_Address::normalize_destination($address);
+        $package = $this->build_package($product_ids, $destination);
+        $this->prime_customer_context($destination);
+
+        $rates = $this->get_rates_for_package($package);
+        if (empty($rates) || !isset($rates[$rate_id])) {
+            throw new Kolai_Invalid_Shipment_Option_Exception('Invalid shipment option');
+        }
+
+        return $rates[$rate_id];
     }
 }

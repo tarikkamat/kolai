@@ -146,3 +146,48 @@ class Kolai_No_Shipping_Options_Exception extends Kolai_Not_Found_Exception {
         parent::__construct($message, $error_code);
     }
 }
+
+/**
+ * 409 Conflict exception.
+ */
+class Kolai_Conflict_Exception extends Kolai_Exception {
+    public function __construct($message, $error_code) {
+        parent::__construct($message, $error_code, 409);
+    }
+}
+
+/**
+ * Invalid order request exception.
+ */
+class Kolai_Invalid_Order_Request_Exception extends Kolai_Bad_Request_Exception {
+    public function __construct($message = 'Invalid order request', $error_code = Kolai_Constants::ERROR_INVALID_ORDER_REQUEST) {
+        parent::__construct($message, $error_code);
+    }
+}
+
+/**
+ * Invalid shipment option exception.
+ */
+class Kolai_Invalid_Shipment_Option_Exception extends Kolai_Bad_Request_Exception {
+    public function __construct($message = 'Invalid shipment option', $error_code = Kolai_Constants::ERROR_INVALID_SHIPMENT_OPTION) {
+        parent::__construct($message, $error_code);
+    }
+}
+
+/**
+ * Insufficient stock exception.
+ */
+class Kolai_Insufficient_Stock_Exception extends Kolai_Conflict_Exception {
+    public function __construct($message = 'Insufficient stock', $error_code = Kolai_Constants::ERROR_INSUFFICIENT_STOCK) {
+        parent::__construct($message, $error_code);
+    }
+}
+
+/**
+ * Discount exceeds total exception.
+ */
+class Kolai_Discount_Exceeds_Total_Exception extends Kolai_Bad_Request_Exception {
+    public function __construct($message = 'Discount exceeds order total', $error_code = Kolai_Constants::ERROR_DISCOUNT_EXCEEDS_TOTAL) {
+        parent::__construct($message, $error_code);
+    }
+}

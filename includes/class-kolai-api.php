@@ -29,6 +29,13 @@ class Kolai_API {
      * @var Kolai_Shipping_Routes
      */
     private $shipping_routes;
+
+    /**
+     * Order routes instance
+     *
+     * @var Kolai_Order_Routes
+     */
+    private $order_routes;
     
     /**
      * Register REST API routes
@@ -39,15 +46,19 @@ class Kolai_API {
         require_once KOLAI_INCLUDES_DIR . 'class-kolai-exceptions.php';
         require_once KOLAI_INCLUDES_DIR . 'class-kolai-response.php';
         require_once KOLAI_INCLUDES_DIR . 'class-kolai-route-base.php';
+        require_once KOLAI_INCLUDES_DIR . 'class-kolai-address.php';
         require_once KOLAI_INCLUDES_DIR . 'product/product-mapper.php';
         require_once KOLAI_INCLUDES_DIR . 'product/product-service.php';
         require_once KOLAI_INCLUDES_DIR . 'product/product-routes.php';
         require_once KOLAI_INCLUDES_DIR . 'shipping/shipping-service.php';
         require_once KOLAI_INCLUDES_DIR . 'shipping/shipping-routes.php';
+        require_once KOLAI_INCLUDES_DIR . 'order/order-service.php';
+        require_once KOLAI_INCLUDES_DIR . 'order/order-routes.php';
         
         // Initialize product routes
         $this->product_routes = new Kolai_Product_Routes();
         $this->shipping_routes = new Kolai_Shipping_Routes();
+        $this->order_routes = new Kolai_Order_Routes();
         
         // Register routes
         add_action('rest_api_init', array($this, 'register_routes'));
@@ -59,5 +70,6 @@ class Kolai_API {
     public function register_routes() {
         $this->product_routes->register_routes();
         $this->shipping_routes->register_routes();
+        $this->order_routes->register_routes();
     }
 }

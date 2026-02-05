@@ -37,4 +37,10 @@ class Kolai_Constants {
     // 3xxx: Shipping errors
     const ERROR_INVALID_ADDRESS = '3000';
     const ERROR_NO_SHIPPING_OPTIONS = '3001';
+
+    // 4xxx: Order errors
+    const ERROR_INVALID_ORDER_REQUEST = '4000';
+    const ERROR_INVALID_SHIPMENT_OPTION = '4001';
+    const ERROR_INSUFFICIENT_STOCK = '4002';
+    const ERROR_DISCOUNT_EXCEEDS_TOTAL = '4003';
 }

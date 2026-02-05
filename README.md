@@ -49,6 +49,12 @@ Tum endpoint'ler asagidaki formatta doner:
 - `3000` Invalid address
 - `3001` No shipping options
 
+#### 4xxx - Order Errors
+- `4000` Invalid order request
+- `4001` Invalid shipment option
+- `4002` Insufficient stock
+- `4003` Discount exceeds total
+
 ## Endpoints
 
 ### GET /products
@@ -334,6 +340,116 @@ Adres alanlari WooCommerce tarafinda su sekilde map edilir:
   "woocommerceVersion": null,
   "wordpressVersion": "6.5.3",
   "phpVersion": "8.1.20",
+  "data": null
+}
+```
+
+### POST /orders
+
+Dis sistemden siparis olusturur. Stok kontrolu zorunludur.
+
+#### Request
+
+```
+POST /wp-json/kolai/v1/orders
+```
+
+```json
+{
+  "buyer": {
+    "email": "john@doe.com",
+    "firstName": "John",
+    "lastName": "Doe",
+    "phone": "+90 555 000 00 00"
+  },
+  "billingAddress": {
+    "countryId": "TR",
+    "cityId": "34",
+    "districtId": "Kadikoy",
+    "postcode": "34710",
+    "addressLine": "Ornek Mah. 1. Sok. No: 2"
+  },
+  "shippingAddress": {
+    "countryId": "TR",
+    "cityId": "34",
+    "districtId": "Kadikoy",
+    "postcode": "34710",
+    "addressLine": "Ornek Mah. 1. Sok. No: 2"
+  },
+  "products": [
+    { "productId": 66, "quantity": 2 },
+    { "productId": 12, "quantity": 1 }
+  ],
+  "shipmentOptionId": "flat_rate:2",
+  "discountAmount": 25.0
+}
+```
+
+Not: `discountAmount` opsiyoneldir. Gonderildiginde `0.00` dan buyuk olmalidir.
+
+#### Response (success)
+
+```json
+{
+  "status": "success",
+  "systemTime": "2026-02-04T10:15:30+00:00",
+  "errorCode": null,
+  "errorMessage": null,
+  "woocommerceVersion": "10.4.3",
+  "wordpressVersion": "6.9.1",
+  "phpVersion": "8.2.4",
+  "data": {
+    "orderId": 1234,
+    "orderNumber": "1234",
+    "status": "processing",
+    "total": 525.0,
+    "currency": "TRY",
+    "paymentMethod": "kolai-app"
+  }
+}
+```
+
+#### Response (insufficient stock)
+
+```json
+{
+  "status": "failure",
+  "systemTime": "2026-02-04T10:15:30+00:00",
+  "errorCode": "4002",
+  "errorMessage": "Insufficient stock quantity",
+  "woocommerceVersion": "10.4.3",
+  "wordpressVersion": "6.9.1",
+  "phpVersion": "8.2.4",
+  "data": null
+}
+```
+
+#### Response (invalid shipment option)
+
+```json
+{
+  "status": "failure",
+  "systemTime": "2026-02-04T10:15:30+00:00",
+  "errorCode": "4001",
+  "errorMessage": "Invalid shipment option",
+  "woocommerceVersion": "10.4.3",
+  "wordpressVersion": "6.9.1",
+  "phpVersion": "8.2.4",
+  "data": null
+}
+```
+
+#### Response (discount exceeds total)
+
+```json
+{
+  "status": "failure",
+  "systemTime": "2026-02-04T10:15:30+00:00",
+  "errorCode": "4003",
+  "errorMessage": "Discount exceeds order total",
+  "woocommerceVersion": "10.4.3",
+  "wordpressVersion": "6.9.1",
+  "phpVersion": "8.2.4",
   "data": null
 }
 ```
