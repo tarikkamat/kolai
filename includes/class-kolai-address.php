@@ -58,7 +58,7 @@ class Kolai_Address {
         $order_address = array(
             'first_name' => isset($buyer['firstName']) ? sanitize_text_field($buyer['firstName']) : '',
             'last_name' => isset($buyer['lastName']) ? sanitize_text_field($buyer['lastName']) : '',
-            'company' => '',
+            'company' => isset($address['companyName']) ? sanitize_text_field($address['companyName']) : '',
             'address_1' => $destination['address_1'],
             'address_2' => $destination['address_2'],
             'city' => $destination['city'],

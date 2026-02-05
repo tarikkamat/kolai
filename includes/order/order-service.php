@@ -48,6 +48,7 @@ class Kolai_Order_Service {
         $discount_amount = isset($payload['discountAmount']) ? $payload['discountAmount'] : null;
 
         $this->validate_buyer($buyer);
+        $this->validate_billing_invoice($billing);
         Kolai_Address::validate_address($billing);
         Kolai_Address::validate_address($shipping);
         $items = $this->validate_products($products);
@@ -68,6 +69,7 @@ class Kolai_Order_Service {
 
         $order->set_address(Kolai_Address::build_order_address($billing, $buyer, true), 'billing');
         $order->set_address(Kolai_Address::build_order_address($shipping, $buyer, false), 'shipping');
+        $this->apply_billing_invoice_meta($order, $billing);
 
         foreach ($items as $item) {
             $order->add_product($item['product'], $item['quantity']);
@@ -114,6 +116,71 @@ class Kolai_Order_Service {
     private function validate_buyer($buyer) {
         if (!is_array($buyer) || empty($buyer['email'])) {
             throw new Kolai_Invalid_Order_Request_Exception('buyer.email is required');
+        }
+    }
+
+    /**
+     * Validate billing invoice fields.
+     *
+     * @param array $billing
+     * @return void
+     */
+    private function validate_billing_invoice($billing) {
+        if (!is_array($billing)) {
+            return;
+        }
+
+        $invoice_type = isset($billing['invoiceType']) ? strtolower(trim((string) $billing['invoiceType'])) : '';
+        if ($invoice_type === '') {
+            return;
+        }
+
+        if (!in_array($invoice_type, array('personal', 'company'), true)) {
+            throw new Kolai_Invalid_Order_Request_Exception('billingAddress.invoiceType must be personal or company');
+        }
+
+        $tax_id = isset($billing['taxId']) ? trim((string) $billing['taxId']) : '';
+        if ($tax_id !== '') {
+            if ($invoice_type === 'company' && !preg_match('/^\d{10}$/', $tax_id)) {
+                throw new Kolai_Invalid_Order_Request_Exception('billingAddress.taxId must be 10 digits for company invoice');
+            }
+            if ($invoice_type === 'personal' && !preg_match('/^\d{11}$/', $tax_id)) {
+                throw new Kolai_Invalid_Order_Request_Exception('billingAddress.taxId must be 11 digits for personal invoice');
+            }
+        }
+    }
+
+    /**
+     * Persist billing invoice fields as order meta.
+     *
+     * @param WC_Order $order
+     * @param array    $billing
+     * @return void
+     */
+    private function apply_billing_invoice_meta($order, $billing) {
+        if (!is_array($billing)) {
+            return;
+        }
+
+        if (isset($billing['invoiceType'])) {
+            $invoice_type = strtolower(trim((string) $billing['invoiceType']));
+            if ($invoice_type !== '') {
+                $order->update_meta_data('billing_invoice_type', $invoice_type);
+            }
+        }
+
+        if (isset($billing['taxId'])) {
+            $tax_id = trim((string) $billing['taxId']);
+            if ($tax_id !== '') {
+                $order->update_meta_data('billing_tax_id', sanitize_text_field($tax_id));
+            }
+        }
+
+        if (isset($billing['taxOffice'])) {
+            $tax_office = trim((string) $billing['taxOffice']);
+            if ($tax_office !== '') {
+                $order->update_meta_data('billing_tax_office', sanitize_text_field($tax_office));
+            }
         }
     }
 

@@ -367,7 +367,11 @@ POST /wp-json/kolai/v1/orders
     "cityId": "34",
     "districtId": "Kadikoy",
     "postcode": "34710",
-    "addressLine": "Ornek Mah. 1. Sok. No: 2"
+    "addressLine": "Ornek Mah. 1. Sok. No: 2",
+    "invoiceType": "company",
+    "companyName": "Ornek Ltd. Sti.",
+    "taxId": "1234567890",
+    "taxOffice": "Kadikoy"
   },
   "shippingAddress": {
     "countryId": "TR",
@@ -386,6 +390,12 @@ POST /wp-json/kolai/v1/orders
 ```
 
 Not: `discountAmount` opsiyoneldir. Gonderildiginde `0.00` dan buyuk olmalidir.
+Not: `billingAddress` icinde opsiyonel fatura alanlari:
+- `invoiceType`: `personal` veya `company` (varsayilan `personal`)
+- `companyName`, `taxId`, `taxOffice` alanlari opsiyoneldir
+- `taxId`: VKN (10 hane) veya TCKN (11 hane). `""` veya `null` gelebilir
+- `invoiceType=company` ise `taxId` girildiginde 10 hane olmalidir
+- `invoiceType=personal` ise `taxId` girildiginde 11 hane olmalidir
 
 #### Response (success)
 
