@@ -103,14 +103,10 @@ GET /wp-json/kolai/v1/products
       "total_sales": 5,
       "tax_status": "taxable",
       "tax_class": "",
-      "manage_stock": false,
-      "stock_quantity": null,
-      "stock_status": "instock",
-      "backorders": "no",
       "sold_individually": false,
       "purchase_note": "",
       "shipping_class_id": 0,
-      "in_stock": true,
+      "inStock": true,
       "weight": 0.5,
       "dimensions": { "length": 10, "width": 20, "height": 2 },
       "upsell_ids": [],
@@ -118,8 +114,21 @@ GET /wp-json/kolai/v1/products
       "parent_id": 0,
       "attributes": [],
       "default_attributes": [],
-      "variations": [],
-      "categories": [],
+      "variations": [
+        {
+          "id": 101,
+          "sku": "TS-001-RED-M",
+          "description": "Kirmizi / M beden",
+          "price": 100,
+          "sale_price": 100,
+          "inStock": true,
+          "attributes": [
+            { "id": 11, "name": "Renk", "slug": "pa_color", "value": "Kirmizi" },
+            { "id": 22, "name": "Beden", "slug": "pa_size", "value": "M" }
+          ],
+          "image": { "id": 10, "url": "https://...", "alt": "" }
+        }
+      ],
       "tags": [],
       "downloadable": false,
       "downloads": [],
@@ -181,14 +190,10 @@ GET /wp-json/kolai/v1/products/12
     "total_sales": 5,
     "tax_status": "taxable",
     "tax_class": "",
-    "manage_stock": false,
-    "stock_quantity": null,
-    "stock_status": "instock",
-    "backorders": "no",
     "sold_individually": false,
     "purchase_note": "",
     "shipping_class_id": 0,
-    "in_stock": true,
+    "inStock": true,
     "weight": 0.5,
     "dimensions": { "length": 10, "width": 20, "height": 2 },
     "upsell_ids": [],
@@ -196,8 +201,21 @@ GET /wp-json/kolai/v1/products/12
     "parent_id": 0,
     "attributes": [],
     "default_attributes": [],
-    "variations": [],
-    "categories": [],
+    "variations": [
+      {
+        "id": 101,
+        "sku": "TS-001-RED-M",
+        "description": "Kirmizi / M beden",
+        "price": 100,
+        "sale_price": 100,
+        "inStock": true,
+        "attributes": [
+          { "id": 11, "name": "Renk", "slug": "pa_color", "value": "Kirmizi" },
+          { "id": 22, "name": "Beden", "slug": "pa_size", "value": "M" }
+        ],
+        "image": { "id": 10, "url": "https://...", "alt": "" }
+      }
+    ],
     "tags": [],
     "downloadable": false,
     "downloads": [],
@@ -245,10 +263,7 @@ POST /wp-json/kolai/v1/shipment-options
   "products": [12, 34, 56],
   "address": {
     "countryId": "TR",
-    "cityId": "34",
-    "districtId": "Kadikoy",
-    "postcode": "34710",
-    "addressLine": "Ornek Mah. 1. Sok. No: 2"
+    "cityId": "34"
   }
 }
 ```
@@ -256,7 +271,6 @@ POST /wp-json/kolai/v1/shipment-options
 Adres alanlari WooCommerce tarafinda su sekilde map edilir:
 - `countryId` -> `country`
 - `cityId` -> `state` (il/province). TR icin `34` gibi numeric degerler otomatik `TR34` olarak normalize edilir.
-- `districtId` -> `city` (ilce)
 
 #### Response (success)
 
@@ -306,7 +320,7 @@ Adres alanlari WooCommerce tarafinda su sekilde map edilir:
   "status": "failure",
   "systemTime": "2026-02-04T10:15:30+00:00",
   "errorCode": "3000",
-  "errorMessage": "countryId, cityId and districtId are required",
+  "errorMessage": "countryId and cityId are required",
   "woocommerceVersion": "9.1.0",
   "wordpressVersion": "6.5.3",
   "phpVersion": "8.1.20",

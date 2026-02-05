@@ -164,9 +164,7 @@ class Kolai_Product_Service {
             'tax_status' => $product->get_tax_status(),
             'tax_class' => $product->get_tax_class(),
             'manage_stock' => $product->get_manage_stock(),
-            'stock_quantity' => $product->get_stock_quantity(),
             'stock_status' => $product->get_stock_status(),
-            'backorders' => $product->get_backorders(),
             'sold_individually' => $product->get_sold_individually(),
             'purchase_note' => $product->get_purchase_note(),
             'shipping_class_id' => $product->get_shipping_class_id(),
@@ -239,11 +237,10 @@ class Kolai_Product_Service {
             $variation_data = array(
                 'id' => $variation->get_id(),
                 'sku' => $variation->get_sku(),
+                'description' => $variation->get_description(),
                 'price' => floatval($variation->get_price()),
-                'regular_price' => floatval($variation->get_regular_price()),
                 'sale_price' => $variation->get_sale_price() ? floatval($variation->get_sale_price()) : null,
                 'stock_status' => $variation->get_stock_status(),
-                'stock_quantity' => $variation->get_stock_quantity(),
                 'manage_stock' => $variation->get_manage_stock(),
                 'in_stock' => $variation->is_in_stock(),
                 'attributes' => $this->get_variation_attributes($variation),
@@ -267,10 +264,24 @@ class Kolai_Product_Service {
         $variation_attributes = $variation->get_attributes();
         
         foreach ($variation_attributes as $attribute_name => $attribute_value) {
-            $attribute_label = wc_attribute_label(str_replace('attribute_', '', $attribute_name));
+            $attribute_slug = str_replace('attribute_', '', $attribute_name);
+            $attribute_label = wc_attribute_label($attribute_slug);
+            $attribute_id = null;
+
+            if (taxonomy_exists($attribute_slug)) {
+                $term = get_term_by('slug', $attribute_value, $attribute_slug);
+                if (!$term) {
+                    $term = get_term_by('name', $attribute_value, $attribute_slug);
+                }
+                if ($term && !is_wp_error($term)) {
+                    $attribute_id = (int) $term->term_id;
+                }
+            }
+
             $attributes[] = array(
+                'id' => $attribute_id,
                 'name' => $attribute_label,
-                'slug' => str_replace('attribute_', '', $attribute_name),
+                'slug' => $attribute_slug,
                 'value' => $attribute_value,
             );
         }

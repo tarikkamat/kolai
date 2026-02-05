@@ -45,6 +45,35 @@ class Kolai_Address {
     }
 
     /**
+     * Normalize destination for shipping options where only countryId/cityId are required.
+     *
+     * @param array $address
+     * @return array
+     */
+    public static function normalize_destination_minimal($address) {
+        if (!is_array($address) || empty($address['countryId']) || empty($address['cityId'])) {
+            throw new Kolai_Invalid_Address_Exception('countryId and cityId are required');
+        }
+
+        $country = sanitize_text_field($address['countryId']);
+        $state = sanitize_text_field($address['cityId']);
+
+        // WooCommerce TR state codes are usually like TR34. Normalize if numeric.
+        if ($country === 'TR' && preg_match('/^\d+$/', $state)) {
+            $state = 'TR' . $state;
+        }
+
+        return array(
+            'country' => $country,
+            'state' => $state,
+            'city' => '',
+            'postcode' => '',
+            'address_1' => '',
+            'address_2' => '',
+        );
+    }
+
+    /**
      * Build order address array.
      *
      * @param array $address

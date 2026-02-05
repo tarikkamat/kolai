@@ -41,7 +41,7 @@ class Kolai_Shipping_Service {
             throw new Kolai_Invalid_Product_List_Exception('Products list is required');
         }
 
-        $destination = Kolai_Address::normalize_destination($address);
+        $destination = Kolai_Address::normalize_destination_minimal($address);
         $package = $this->build_package($product_ids, $destination);
 
         $this->prime_customer_context($destination);

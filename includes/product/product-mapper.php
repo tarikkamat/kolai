@@ -50,9 +50,9 @@ class Kolai_Product_Mapper {
             }
         }
         
-        // Price and Availability
-        if (isset($product_data['stock_status'])) {
-            $mapped['availability'] = $product_data['stock_status'] === 'instock' ? 'in stock' : 'out of stock';
+        // Stock (boolean only)
+        if (isset($product_data['in_stock'])) {
+            $mapped['inStock'] = (bool) $product_data['in_stock'];
         }
         
         // Price (as string with currency format)
@@ -107,7 +107,6 @@ class Kolai_Product_Mapper {
         }
         
         // Additional fields for compatibility - WooCommerce default structure
-        if (isset($product_data['categories'])) $mapped['categories'] = $product_data['categories'];
         if (isset($product_data['variations']) && is_array($product_data['variations'])) {
             $mapped['variations'] = self::map_variations($product_data['variations']);
         }
@@ -131,24 +130,17 @@ class Kolai_Product_Mapper {
             // Basic fields
             if (isset($variation['id'])) $mapped['id'] = intval($variation['id']);
             if (isset($variation['sku'])) $mapped['sku'] = $variation['sku'];
+            if (isset($variation['description'])) $mapped['description'] = $variation['description'];
             
             // Prices (as string)
             if (isset($variation['price'])) {
                 $mapped['price'] = (string) number_format(floatval($variation['price']), 2, '.', '');
-            }
-            if (isset($variation['regular_price'])) {
-                $mapped['regularPrice'] = (string) number_format(floatval($variation['regular_price']), 2, '.', '');
             }
             if (isset($variation['sale_price']) && $variation['sale_price']) {
                 $mapped['salePrice'] = (string) number_format(floatval($variation['sale_price']), 2, '.', '');
             }
             
             // Stock information
-            if (isset($variation['stock_status'])) $mapped['stockStatus'] = $variation['stock_status'];
-            if (isset($variation['stock_quantity'])) {
-                $mapped['stockQuantity'] = $variation['stock_quantity'] !== null ? intval($variation['stock_quantity']) : null;
-            }
-            if (isset($variation['manage_stock'])) $mapped['manageStock'] = $variation['manage_stock'];
             if (isset($variation['in_stock'])) $mapped['inStock'] = (bool) $variation['in_stock'];
             
             // Attributes and Image
