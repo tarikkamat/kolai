@@ -360,7 +360,7 @@ Adres alanlari WooCommerce tarafinda su sekilde map edilir:
 
 ### POST /orders
 
-Dis sistemden siparis olusturur. Stok kontrolu zorunludur.
+Dis sistemden siparis olusturur. Stok kontrolu zorunludur. Siparis **pending payment** (odeme bekliyor) olarak olusturulur; odeme tamamlanana kadar stok dusulmez. Siparisin gecerlilik suresi WooCommerce **Hold stock (minutes)** ayarindan okunur ve yanit icinde `orderExpireAt` olarak ISO 8601 formatinda dondurulur.
 
 #### Request
 
@@ -425,13 +425,16 @@ Not: `billingAddress` icinde opsiyonel fatura alanlari:
   "data": {
     "orderId": 1234,
     "orderNumber": "1234",
-    "status": "processing",
+    "status": "pending",
     "total": 525.0,
     "currency": "TRY",
-    "paymentMethod": "kolai-app"
+    "paymentMethod": "kolai-app",
+    "orderExpireAt": "2026-02-04T10:15:30+00:00"
   }
 }
 ```
+
+Not: `orderExpireAt`, WooCommerce **Hold stock (for unpaid orders)** ayarindaki sure (dakika) kullanilarak hesaplanir; bu tarihe kadar odeme alinmazsa siparis iptal edilir. Format her zaman UTC icin `YYYY-MM-DDTHH:mm:ss+00:00` (ISO 8601) seklindedir.
 
 #### Response (insufficient stock)
 

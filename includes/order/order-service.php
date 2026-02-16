@@ -92,10 +92,14 @@ class Kolai_Order_Service {
             $this->apply_discount($order, $discount_amount);
         }
 
-        $order->set_status('processing');
+        $order->set_status('pending');
         $order->save();
 
-        $order->reduce_order_stock();
+        $hold_minutes = (int) get_option('woocommerce_hold_stock_minutes', 60);
+        if ($hold_minutes < 1) {
+            $hold_minutes = 60;
+        }
+        $order_expire_at = gmdate('c', time() + ($hold_minutes * 60));
 
         return array(
             'orderId' => $order->get_id(),
@@ -104,6 +108,7 @@ class Kolai_Order_Service {
             'total' => (float) $order->get_total(),
             'currency' => $order->get_currency(),
             'paymentMethod' => $order->get_payment_method(),
+            'orderExpireAt' => $order_expire_at,
         );
     }
 
