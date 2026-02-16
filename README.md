@@ -481,6 +481,116 @@ Not: `orderExpireAt`, WooCommerce **Hold stock (for unpaid orders)** ayarindaki 
 }
 ```
 
+### GET /orders/{orderId}
+
+Belirli bir siparisi ID ile dondurur.
+
+#### Request
+
+```
+GET /wp-json/kolai/v1/orders/{orderId}
+```
+
+#### Response (success)
+
+```json
+{
+  "status": "success",
+  "systemTime": "2026-02-04T10:15:30+00:00",
+  "errorCode": null,
+  "errorMessage": null,
+  "woocommerceVersion": "10.4.3",
+  "wordpressVersion": "6.9.1",
+  "phpVersion": "8.2.4",
+  "data": {
+    "orderId": 1234,
+    "orderNumber": "1234",
+    "status": "pending",
+    "total": 525.0,
+    "currency": "TRY",
+    "paymentMethod": "kolai-app",
+    "orderExpireAt": "2026-02-04T10:15:30+00:00",
+    "dateCreated": "2026-02-04T10:10:00+00:00",
+    "dateModified": "2026-02-04T10:10:00+00:00"
+  }
+}
+```
+
+Not: `orderExpireAt` hesaplamasi siparisin olusturulma zamanina (`dateCreated`) ve WooCommerce **Hold stock (for unpaid orders)** ayarina gore yapilir.
+
+#### Response (order not found)
+
+```json
+{
+  "status": "failure",
+  "systemTime": "2026-02-04T10:15:30+00:00",
+  "errorCode": "1001",
+  "errorMessage": "Order not found",
+  "woocommerceVersion": "10.4.3",
+  "wordpressVersion": "6.9.1",
+  "phpVersion": "8.2.4",
+  "data": null
+}
+```
+
+### PATCH /orders/{orderId}
+
+Mevcut bir siparisin durumunu guncellemek icin kullanilir.
+
+#### Request
+
+```
+PATCH /wp-json/kolai/v1/orders/{orderId}
+```
+
+```json
+{
+  "orderStatus": "processing"
+}
+```
+
+Not: `orderStatus` alaninin degeri, `/wp-json/kolai/v1/order-types` endpoint'inden donen status anahtarlarindan biri olmalidir (ornegin `pending`, `processing`, `completed`, `cancelled`).
+
+#### Response (success)
+
+```json
+{
+  "status": "success",
+  "systemTime": "2026-02-04T10:15:30+00:00",
+  "errorCode": null,
+  "errorMessage": null,
+  "woocommerceVersion": "10.4.3",
+  "wordpressVersion": "6.9.1",
+  "phpVersion": "8.2.4",
+  "data": {
+    "orderId": 1234,
+    "orderNumber": "1234",
+    "status": "processing",
+    "total": 525.0,
+    "currency": "TRY",
+    "paymentMethod": "kolai-app",
+    "orderExpireAt": "2026-02-04T10:15:30+00:00",
+    "dateCreated": "2026-02-04T10:10:00+00:00",
+    "dateModified": "2026-02-04T10:16:00+00:00"
+  }
+}
+```
+
+#### Response (invalid orderStatus)
+
+```json
+{
+  "status": "failure",
+  "systemTime": "2026-02-04T10:15:30+00:00",
+  "errorCode": "4000",
+  "errorMessage": "Invalid orderStatus: foo",
+  "woocommerceVersion": "10.4.3",
+  "wordpressVersion": "6.9.1",
+  "phpVersion": "8.2.4",
+  "data": null
+}
+```
+
 ## Yapı
 
 ```

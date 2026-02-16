@@ -131,6 +131,79 @@ class Kolai_Order_Service {
     }
 
     /**
+     * Get order by ID.
+     *
+     * @param int $order_id
+     * @return array
+     */
+    public function get_order_by_id($order_id) {
+        if (!$this->is_woocommerce_active()) {
+            throw new Kolai_WooCommerce_Inactive_Exception();
+        }
+        $order = wc_get_order($order_id);
+        if (!$order || !$order->get_id()) {
+            throw new Kolai_Not_Found_Exception('Order not found');
+        }
+        return $this->format_order_response($order);
+    }
+
+    /**
+     * Update order status.
+     *
+     * @param int   $order_id
+     * @param array $payload Must contain orderStatus (valid WooCommerce status slug).
+     * @return array
+     */
+    public function update_order_status($order_id, $payload) {
+        if (!$this->is_woocommerce_active()) {
+            throw new Kolai_WooCommerce_Inactive_Exception();
+        }
+        $order = wc_get_order($order_id);
+        if (!$order || !$order->get_id()) {
+            throw new Kolai_Not_Found_Exception('Order not found');
+        }
+        $new_status = isset($payload['orderStatus']) ? trim((string) $payload['orderStatus']) : '';
+        if ($new_status === '') {
+            throw new Kolai_Invalid_Order_Request_Exception('orderStatus is required');
+        }
+        $valid_slugs = array_keys($this->get_order_types());
+        if (!in_array($new_status, $valid_slugs, true)) {
+            throw new Kolai_Invalid_Order_Request_Exception('Invalid orderStatus: ' . $new_status);
+        }
+        $order->set_status($new_status);
+        $order->save();
+        return $this->format_order_response($order);
+    }
+
+    /**
+     * Format order for API response.
+     *
+     * @param WC_Order $order
+     * @return array
+     */
+    private function format_order_response($order) {
+        $hold_minutes = (int) get_option('woocommerce_hold_stock_minutes', 60);
+        if ($hold_minutes < 1) {
+            $hold_minutes = 60;
+        }
+        $date_created = $order->get_date_created();
+        $order_expire_at = $date_created
+            ? gmdate('c', $date_created->getTimestamp() + ($hold_minutes * 60))
+            : null;
+        return array(
+            'orderId' => $order->get_id(),
+            'orderNumber' => $order->get_order_number(),
+            'status' => $order->get_status(),
+            'total' => (float) $order->get_total(),
+            'currency' => $order->get_currency(),
+            'paymentMethod' => $order->get_payment_method(),
+            'orderExpireAt' => $order_expire_at,
+            'dateCreated' => $date_created ? $date_created->format('c') : null,
+            'dateModified' => $order->get_date_modified() ? $order->get_date_modified()->format('c') : null,
+        );
+    }
+
+    /**
      * Validate buyer info.
      *
      * @param array $buyer
