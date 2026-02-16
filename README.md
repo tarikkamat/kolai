@@ -358,6 +358,41 @@ Adres alanlari WooCommerce tarafinda su sekilde map edilir:
 }
 ```
 
+### GET /order-types
+
+WooCommerce siparis durumlarini (order status) key-value olarak dondurur. PATCH `/orders/{orderId}` ile siparis guncellerken `orderStatus` alaninda kullanilacak gecerli degerler bu endpoint'ten alinabilir.
+
+#### Request
+
+```
+GET /wp-json/kolai/v1/order-types
+```
+
+#### Response (success)
+
+```json
+{
+  "status": "success",
+  "systemTime": "2026-02-04T10:15:30+00:00",
+  "errorCode": null,
+  "errorMessage": null,
+  "woocommerceVersion": "10.4.3",
+  "wordpressVersion": "6.9.1",
+  "phpVersion": "8.2.4",
+  "data": {
+    "pending": "Pending payment",
+    "processing": "Processing",
+    "on-hold": "On hold",
+    "completed": "Completed",
+    "cancelled": "Cancelled",
+    "refunded": "Refunded",
+    "failed": "Failed"
+  }
+}
+```
+
+Not: `data` icindeki anahtarlar (ornegin `pending`, `processing`) siparis durumu slug'laridir; PATCH `/orders/{orderId}` body'deki `orderStatus` alaninda bu degerler kullanilmalidir.
+
 ### POST /orders
 
 Dis sistemden siparis olusturur. Stok kontrolu zorunludur. Siparis **pending payment** (odeme bekliyor) olarak olusturulur; odeme tamamlanana kadar stok dusulmez. Siparisin gecerlilik suresi WooCommerce **Hold stock (minutes)** ayarindan okunur ve yanit icinde `orderExpireAt` olarak ISO 8601 formatinda dondurulur.
