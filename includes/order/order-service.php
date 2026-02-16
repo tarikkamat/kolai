@@ -113,6 +113,24 @@ class Kolai_Order_Service {
     }
 
     /**
+     * Get order status types as key-value (status slug => label).
+     *
+     * @return array<string, string>
+     */
+    public function get_order_types() {
+        if (!$this->is_woocommerce_active()) {
+            return array();
+        }
+        $statuses = wc_get_order_statuses();
+        $result = array();
+        foreach ($statuses as $key => $label) {
+            $slug = strpos($key, 'wc-') === 0 ? substr($key, 3) : $key;
+            $result[ $slug ] = $label;
+        }
+        return $result;
+    }
+
+    /**
      * Validate buyer info.
      *
      * @param array $buyer

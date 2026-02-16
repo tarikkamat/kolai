@@ -39,6 +39,12 @@ class Kolai_Order_Routes extends Kolai_Route_Base {
             'callback' => array($this, 'create_order'),
             'permission_callback' => '__return_true',
         ));
+
+        register_rest_route('kolai/v1', '/order-types', array(
+            'methods' => 'GET',
+            'callback' => array($this, 'get_order_types'),
+            'permission_callback' => '__return_true',
+        ));
     }
 
     /**
@@ -51,6 +57,18 @@ class Kolai_Order_Routes extends Kolai_Route_Base {
         return $this->handle(function() use ($request) {
             $params = $request->get_json_params();
             return $this->order_service->create_order($params);
+        });
+    }
+
+    /**
+     * Get order status types (key-value)
+     *
+     * @param WP_REST_Request $request
+     * @return WP_REST_Response
+     */
+    public function get_order_types($request) {
+        return $this->handle(function() {
+            return $this->order_service->get_order_types();
         });
     }
 }
